@@ -1,0 +1,56 @@
+name: generate new data
+
+on:
+  schedule:
+    - cron: '0 7 * * *'
+
+  push:
+    branches: 'main'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: npm
+          
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run dump.js
+        env:
+          SOME_SECRET: ${{ secrets.TOKEN }}
+        run: |
+          node dump.js
+
+      # - name: Run dump.js for regions
+      #   env:
+      #     SOME_SECRET: ${{ secrets.TOKEN }}
+      #   run: |
+      #     node dump.js "https://www.nationstates.net/pages/regions.xml.gz" "regions-${{ env.NOW }}"
+          
+      # - name: Run dump.js for nations
+      #   env:
+      #     SOME_SECRET: ${{ secrets.TOKEN }}
+      #   run: |
+      #     node dump.js "https://www.nationstates.net/pages/nations.xml.gz" "nations-${{ env.NOW }}"
+          
+      - name: Commit and Push XML files
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "Actions"
+          git add "data/*.xml"
+          git commit -m "Update daily xml"
+          git push
+          
+      - name: Push changes
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ secrets.TOKEN }}
+          branch: main
