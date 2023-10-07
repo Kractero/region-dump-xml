@@ -18,7 +18,7 @@ async function dump(url, filename) {
 
   const xmlText = new TextDecoder().decode(inflate.result);
   const date = new Date();
-  currentDate.setDate(currentDate.getDate()-1);
+  date.setDate(date.getDate()-1);
   writeFileSync(`data/${date.toISOString().slice(0, 10)}${filename}.xml`, xmlText);
 }
 
