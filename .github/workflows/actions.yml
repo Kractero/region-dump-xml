@@ -6,7 +6,7 @@ on:
 
   push:
     branches: 'main'
-
+  
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,33 +14,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Install Node.js
-        uses: actions/setup-node@v3
+      - name: setup python
+        uses: actions/setup-python@v4
         with:
-          node-version: 18
-          cache: npm
+          python-version: '3.11'
           
       - name: Install dependencies
-        run: npm install
+        run: pip install requests
 
-      - name: Run dump.js
+      - name: Run main script
         env:
           SOME_SECRET: ${{ secrets.TOKEN }}
-        run: |
-          node dump.js
+        run: python dump.py
 
-      # - name: Run dump.js for regions
-      #   env:
-      #     SOME_SECRET: ${{ secrets.TOKEN }}
-      #   run: |
-      #     node dump.js "https://www.nationstates.net/pages/regions.xml.gz" "regions-${{ env.NOW }}"
-          
-      # - name: Run dump.js for nations
-      #   env:
-      #     SOME_SECRET: ${{ secrets.TOKEN }}
-      #   run: |
-      #     node dump.js "https://www.nationstates.net/pages/nations.xml.gz" "nations-${{ env.NOW }}"
-          
       - name: Commit and Push XML files
         run: |
           git config --local user.email "actions@github.com"
