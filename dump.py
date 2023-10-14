@@ -4,60 +4,40 @@ import gzip
 from io import BytesIO
 from datetime import datetime, timedelta
 import xml.etree.ElementTree as ET
-import json
 
-todays_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
+def download_and_save_xml(xml_content, output_file, approved_keys, iter_str):
+    root = ET.fromstring(xml_content)
+    for iterable in root.iter(iter_str):
+        for element in list(iterable):
+            if element.tag not in approved_keys:
+                iterable.remove(element)
 
-def element_to_dict(element, approved_keys, list_key):
-    result = {}
-    for child in element:
-        child_data = element_to_dict(child, approved_keys, list_key)
-        if child_data:
-            if child.tag in result:
-                if type(result[child.tag]) is list:
-                    result[child.tag].append(child_data)
-                else:
-                    result[child.tag] = [result[child.tag], child_data]
-            else:
-                result[child.tag] = child_data
-        else:
-            if child.tag in approved_keys:
-                if child.tag == list_key:
-                    embassies_data = []
-                    for sub_child in child:
-                        embassies_data.append(sub_child.text)
-                    result[list_key] = ",".join(str(embassy) for embassy in embassies_data)
-                else:
-                    result[child.tag] = child.text
-    return result
-
-def download_and_save_xml(url, output_file, approved_keys, iter_str, list_key):
-    response = requests.get(url, headers={'User-Agent': 'Kractero'})
-    if response.status_code == 200:
-        with gzip.GzipFile(fileobj=BytesIO(response.content)) as gzipped_file:
-            xml_text = gzipped_file.read()
-        root = ET.fromstring(xml_text)
-        for iterable in root.iter(iter_str):
-            for element in list(iterable):
-                if element.tag not in approved_keys:
-                    iterable.remove(element)
-        filtered_xml_text = ET.tostring(root)
-        with open(output_file, 'wb') as xml_file:
-            xml_file.write(filtered_xml_text)
-        print(f'XML file downloaded and saved successfully: {output_file}')
-
-        xml_dict = element_to_dict(root, approved_keys, list_key)
-        json_data = json.dumps(xml_dict, indent=4)
-        with open(output_file.replace(".xml", ".json"), 'w') as json_file:
-            json_file.write(json_data)
-        print(f'JSON file downloaded and saved successfully: {output_file}')
-    else:
-        print(f'Failed to fetch dump from NationStates with status {response.status_code}')
+    filtered_xml_text = ET.tostring(root)
+    with open(output_file, 'wb') as xml_file:
+        xml_file.write(filtered_xml_text)
+    print(f'XML file saved successfully: {output_file}')
 
 def main():
     todays_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
-    download_and_save_xml('https://www.nationstates.net/pages/regions.xml.gz', f'data/{todays_date}-RegionsTest.xml', ("NAME", "NUMNATIONS", "DELEGATEVOTES", "DELEGATEAUTH", "LASTUPDATE", "FACTBOOK", "EMBASSIES"), "REGION", "EMBASSIES")
-    download_and_save_xml('https://www.nationstates.net/pages/nations.xml.gz', f'data/{todays_date}-NationsTest.xml', ("NAME", "ENDORSEMENTS", "LASTACTIVITY"), "NATION", "ENDORSEMENTS")
+
+    # Download regions
+    region_response = requests.get('https://www.nationstates.net/pages/regions.xml.gz', headers={'User-Agent': 'Kractero'})
+    if region_response.status_code == 200:
+        with gzip.GzipFile(fileobj=BytesIO(region_response.content)) as gzipped_file:
+            download_and_save_xml(gzipped_file.read(), f'data/{todays_date}-Regions.xml', ("NAME", "NUMNATIONS", "DELEGATEVOTES", "DELEGATEAUTH", "LASTUPDATE", "FACTBOOK", "EMBASSIES"), "REGION")
+    else:
+        print(f'Failed to fetch regions data with status {region_response.status_code}')
+
+    # Download nations
+    nation_response = requests.get('https://www.nationstates.net/pages/nations.xml.gz', headers={'User-Agent': 'Kractero'})
+    if nation_response.status_code == 200:
+        with gzip.GzipFile(fileobj=BytesIO(nation_response.content)) as gzipped_file:
+            xml_content = gzipped_file.read()
+            download_and_save_xml(xml_content, f'data/{todays_date}-Nations.xml', ("NAME", "ENDORSEMENTS"), "NATION")
+            download_and_save_xml(xml_content, f'data/{todays_date}-Nations-LA.xml', ("NAME", "LASTACTIVITY"), "NATION")
+    else:
+        print(f'Failed to fetch nations data with status {nation_response.status_code}')
+
     previous_date = (datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d')
 
     xml_files = os.listdir('data')
@@ -66,5 +46,6 @@ def main():
         file_date = xml_file.split('-R')[0]
         if file_date < previous_date:
             os.remove(os.path.join('data', xml_file))
-    
-main()
+
+if __name__ == "__main__":
+    main()
