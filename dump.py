@@ -34,7 +34,7 @@ def main():
         with gzip.GzipFile(fileobj=BytesIO(nation_response.content)) as gzipped_file:
             xml_content = gzipped_file.read()
             download_and_save_xml(xml_content, f'data/{todays_date}-Nations.xml', ("NAME", "ENDORSEMENTS"), "NATION")
-            download_and_save_xml(xml_content, f'data/{todays_date}-Nations-LA.xml', ("NAME", "LASTACTIVITY"), "NATION")
+            download_and_save_xml(xml_content, f'data/{todays_date}-Nations-LL.xml', ("NAME", "LASTLOGIN"), "NATION")
     else:
         print(f'Failed to fetch nations data with status {nation_response.status_code}')
 
