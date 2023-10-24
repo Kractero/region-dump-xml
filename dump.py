@@ -27,7 +27,7 @@ def download_and_save_xml(url, output_file, approved_keys, iter_str, list_key):
 
 def main():
     todays_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
-    download_and_save_xml('https://www.nationstates.net/pages/regions.xml.gz', f'data/{todays_date}-Regions.xml', ("NAME", "NUMNATIONS", "DELEGATEVOTES", "DELEGATEAUTH", "LASTUPDATE", "FACTBOOK", "EMBASSIES"), "REGION", "EMBASSIES")
+    download_and_save_xml('https://www.nationstates.net/pages/regions.xml.gz', f'data/{todays_date}-Regions.xml', ("NAME", "NUMNATIONS", "NATIONS", "DELEGATEVOTES", "DELEGATEAUTH", "LASTUPDATE", "FACTBOOK", "EMBASSIES"), "REGION", "EMBASSIES")
     download_and_save_xml('https://www.nationstates.net/pages/nations.xml.gz', f'data/{todays_date}-Nations.xml', ("NAME", "ENDORSEMENTS"), "NATION", "ENDORSEMENTS")
     previous_date = (datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d')
 
