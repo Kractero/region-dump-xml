@@ -51,10 +51,10 @@ def main():
         name = nation.find('NAME').text
         names_in_xml.add(name)
 
-    cards = []
+    cards = {}
+
     for name in card_names:
-        cte_status = 'false' if name in names_in_xml else 'true'
-        cards.append({"name": name, "cte": cte_status})
+        cards[name] = 'false' if name in names_in_xml else 'true'
 
     with open(f'data/{todays_date}-cards.json', 'w') as json_file:
         json.dump(cards, json_file, indent=2)
