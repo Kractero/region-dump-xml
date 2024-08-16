@@ -31,6 +31,7 @@ jobs:
           git config --local user.email "actions@github.com"
           git config --local user.name "Actions"
           git add "data/*.xml"
+          git add "data/*.json"
           git commit -m "Update daily xml"
           git push
 
