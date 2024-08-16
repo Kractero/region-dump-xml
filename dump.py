@@ -48,13 +48,13 @@ def main():
     root = tree.getroot()
     names_in_xml = set()
     for nation in root.iter('NATION'):
-        name = nation.find('NAME').text
+        name = nation.find('NAME').text.lower()
         names_in_xml.add(name)
 
     cards = {}
 
     for name in card_names:
-        cards[name] = False if name in names_in_xml else True
+        cards[name] = False if name.lower() in names_in_xml else True
 
     with open(f'data/{todays_date}-cards.json', 'w') as json_file:
         json.dump(cards, json_file, indent=2)
