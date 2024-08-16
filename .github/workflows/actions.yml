@@ -2,10 +2,10 @@ name: generate new data
 
 on:
   schedule:
-    - cron: '0 6 * * *'
+    - cron: "0 6 * * *"
 
   workflow_dispatch:
-  
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,10 +16,10 @@ jobs:
       - name: setup python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
-          
-      - name: Install dependencies
-        run: pip install requests
+          python-version: "3.11"
+
+      # - name: Install dependencies
+      # run: pip install requests
 
       - name: Run main script
         env:
@@ -33,7 +33,7 @@ jobs:
           git add "data/*.xml"
           git commit -m "Update daily xml"
           git push
-          
+
       - name: Push changes
         uses: ad-m/github-push-action@v0.6.0
         with:
