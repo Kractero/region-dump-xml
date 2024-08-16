@@ -54,7 +54,7 @@ def main():
     cards = {}
 
     for name in card_names:
-        cards[name] = 'false' if name in names_in_xml else 'true'
+        cards[name] = False if name in names_in_xml else True
 
     with open(f'data/{todays_date}-cards.json', 'w') as json_file:
         json.dump(cards, json_file, indent=2)
