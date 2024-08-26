@@ -36,25 +36,25 @@ def download_and_save_xml(url, output_file, approved_keys, iter_str):
 def main():
     todays_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
     download_and_save_xml('https://www.nationstates.net/pages/regions.xml.gz', f'data/{todays_date}-Regions.xml', ("NAME", "NUMNATIONS", "UNNATIONS", "DELEGATEVOTES", "DELEGATEAUTH", "LASTUPDATE", "FACTBOOK", "EMBASSIES"), "REGION")
-    download_and_save_xml('https://www.nationstates.net/pages/nations.xml.gz', f'data/{todays_date}-Nations.xml', ("NAME", "ENDORSEMENTS"), "NATION")
+    download_and_save_xml('https://www.nationstates.net/pages/nations.xml.gz', f'data/{todays_date}-Nations.xml', ("NAME", "DBID", "ENDORSEMENTS"), "NATION")
     previous_date = (datetime.now() - timedelta(days=2)).strftime('%Y-%m-%d')
 
     xml_files = os.listdir('data')
 
-    with open('cards.txt', 'r') as file:
-        card_names = set(line.strip() for line in file if line.strip())
+    with open('cards_id.txt', 'r') as file:
+        card_ids = set(line.strip() for line in file if line.strip())
 
     tree = ET.parse(f'data/{todays_date}-Nations.xml')
     root = tree.getroot()
-    names_in_xml = set()
+    ids_in_xml = set()
     for nation in root.iter('NATION'):
-        name = nation.find('NAME').text.lower()
-        names_in_xml.add(name)
+        name = nation.find('DBID').text.lower()
+        ids_in_xml.add(name)
 
     cards = {}
 
-    for name in card_names:
-        cards[name] = False if name.lower() in names_in_xml else True
+    for id in card_ids:
+        cards[id] = False if id.lower() in ids_in_xml else True
 
     with open(f'data/{todays_date}-cards.json', 'w') as json_file:
         json.dump(cards, json_file, indent=2)
