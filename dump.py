@@ -41,7 +41,7 @@ def main():
 
     xml_files = os.listdir('data')
 
-    with open('cards_id.txt', 'r') as file:
+    with open('card_ids.txt', 'r') as file:
         card_ids = set(line.strip() for line in file if line.strip())
 
     tree = ET.parse(f'data/{todays_date}-Nations.xml')
